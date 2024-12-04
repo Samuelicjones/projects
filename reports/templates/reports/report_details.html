@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Report Details{% endblock %}
+{% block content %}
+{% load custom_filters %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">Report Details</h1>
+
+    <!-- Job and Completion Info -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            Report for Job: <strong>{{ report.job }}</strong>
+        </div>
+        <div class="card-body">
+            <p><strong>Completed by:</strong> 
+                {% if report.completed_by.user.first_name and report.completed_by.user.last_name %}
+                    {{ report.completed_by.user.first_name }} {{ report.completed_by.user.last_name }}
+                {% else %}
+                    {{ report.completed_by.user }}
+                {% endif %}
+            </p>
+            <p><strong>Completed at:</strong> {{ report.completed_at|date:"F j, Y, g:i a" }}</p>
+            <p><strong>Job Details:</strong> {{ report.job_details }}</p>
+            <p><strong>Job Issues:</strong> {{ report.job_issues|default:"None" }}</p>
+            <p><strong>Payment Method:</strong> {{ report.get_payment_method_display }}</p>
+            <p><strong>Payment Received:</strong> 
+                <span class="badge {% if report.payment_received %}bg-success{% else %}bg-danger{% endif %}">
+                    {{ report.payment_received|yesno:"Yes,No" }}
+                </span>
+            </p>
+
+            <!-- Additional Image -->
+            {% if report.additional_image %}
+                <p><strong>Additional Image:</strong></p>
+                <img src="{{ report.additional_image.url }}" alt="Additional Image" class="img-fluid rounded shadow" style="max-width: 300px;">
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Invoice Section -->
+    {% if not report.invoice %}
+        <div class="text-center mb-4">
+            <a href="{% url 'reports:add_invoice' report.id %}" class="btn btn-warning">Add Invoice</a>
+        </div>
+    {% else %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                Invoice Details
+            </div>
+            <div class="card-body">
+                <p><strong>Company Name:</strong> {{ report.invoice.company_name }}</p>
+                <p><strong>Contact Name:</strong> {{ report.invoice.contact_name }}</p>
+                <p><strong>Date:</strong> {{ report.invoice.date|date:"F j, Y" }}</p>
+                <p><strong>Address:</strong> {{ report.invoice.address }}</p>
+                <p><strong>Contact Phone:</strong> {{ report.invoice.contact_phone }}</p>
+
+                <!-- Invoice Items Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Quantity</th>
+                                <th>Item Description</th>
+                                <th>Price</th>
+                                <th>Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in report.invoice.items %}
+                                <tr>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ item.description }}</td>
+                                    <td>${{ item.price|floatformat:2 }}</td>
+                                    <td>${{ item.total_amount|floatformat:2 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <p><strong>Subtotal:</strong> ${{ report.invoice.subtotal|floatformat:2 }}</p>
+                <p><strong>Tax:</strong> ${{ report.invoice.tax|floatformat:2 }}</p>
+                <p><strong>Total:</strong> ${{ report.invoice.total|floatformat:2 }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'reports:reports_list' %}" class="btn btn-outline-secondary">Back</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Full Activity Log{% endblock %}
+{% block content %}
+{% load custom_filters %}
+
+    <div class="container my-5">
+        <h2 class="mb-4">Activity Log</h2>
+
+        <!-- Search Form -->
+        <form method="GET" action="{% url 'full_activity_log' %}" class="form-inline mb-4">
+            <div class="form-group mr-2">
+                <input type="text" name="q" class="form-control" placeholder="Search by TeamMember, Date, Payment Method, or Job" value="{{ query|default_if_none:'' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+
+        <!-- Activity Log List -->
+        {% if all_logs %}
+            <ul class="list-group">
+                {% for log in all_logs %}
+                    <li class="list-group-item">
+                        <strong>{{ log.team_member.user.username }}</strong> {{ log.action }} 
+                        <strong>{{ log.affected_object }}</strong> at 
+                        <em>{{ log.timestamp|date:"M d, Y, h:i A" }}</em>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No activities recorded.</p>
+        {% endif %}
+    </div>
+
+{% endblock %}

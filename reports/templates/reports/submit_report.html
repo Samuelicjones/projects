@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% block title %}Submit Report{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">Submit Report for Job: {{ job.customer.name }}</h1>
+
+    <!-- Report Submission Form -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Job Details -->
+                <div class="mb-3">
+                    <label for="id_job_details" class="form-label"><strong>Job Details:</strong></label>
+                    {{ form.job_details|add_class:"form-control" }}
+                </div>
+
+                <!-- Job Issues -->
+                <div class="mb-3">
+                    <label for="id_job_issues" class="form-label"><strong>Job Issues:</strong></label>
+                    {{ form.job_issues|add_class:"form-control" }}
+                </div>
+
+                <!-- Payment Method -->
+                <div class="mb-3">
+                    <label for="id_payment_method" class="form-label"><strong>Payment Method:</strong></label>
+                    {{ form.payment_method|add_class:"form-select" }}
+                </div>
+
+                <!-- Payment Received -->
+                <div class="form-check mb-3">
+                    {{ form.payment_received|add_class:"form-check-input" }}
+                    <label for="id_payment_received" class="form-check-label">Payment Received</label>
+                </div>
+
+                <!-- Additional Image -->
+                <div class="mb-3">
+                    <label for="id_additional_image" class="form-label"><strong>Additional Image:</strong></label>
+                    {{ form.additional_image|add_class:"form-control" }}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Submit Report</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Display Uploaded Image -->
+    {% if report.additional_image %}
+        <div class="text-center mt-4">
+            <p><strong>Uploaded Image:</strong></p>
+            <img src="{{ report.additional_image.url }}" alt="Additional Image" class="img-fluid rounded shadow-sm" style="max-width: 300px;">
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

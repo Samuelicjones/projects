@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ member.user.username }}'s Profile{% endblock %}
+{% block content %}
+{% load custom_filters %}
+
+    <div class="container my-5">
+        <!-- Profile Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>{{ member.user.username }}'s Profile</h2>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+
+        <!-- Full Name -->
+        <div class="mb-4">
+            <h4>Full Name:</h4>
+            {% if member.user.first_name or member.user.last_name %}
+                <p>{{ member.user.first_name }} {{ member.user.last_name }}</p>
+            {% else %}
+                <p>{{ member.user.username }} has not updated their profile to provide a full name yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Profile Update Section (Only for the current user) -->
+        {% if is_own_profile %}
+            <h3>Update Your Profile</h3>
+            <form method="POST" class="mb-4">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.as_p }}
+                </div>
+                <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
+            </form>
+            <p>Your access level: {{ member.get_access_level_display }}</p>
+        {% else %}
+            <p>You do not have permission to edit this profile.</p>
+        {% endif %}
+
+        <!-- Access Level Section (Only for admins) -->
+        {% if not is_own_profile and access_level >= 3 and access_level > member.access_level %}
+            <h4>{{ member.user.username }}'s Access Level:</h4>
+            <p>{{ member.get_access_level_display }}</p>
+            <form method="POST" action="" class="mb-4">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="access_level">Change Access Level:</label>
+                    <select name="access_level" id="access_level" class="form-control">
+                        {% for level, name in member.ACCESS_LEVEL %}
+                            {% if access_level > level %}
+                                <option value="{{ level }}" {% if member.access_level == level %}selected{% endif %}>
+                                    {{ name }}
+                                </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" name="promote_member" class="btn btn-primary">Update Access Level</button>
+            </form>
+        {% endif %}
+
+        <!-- Active Jobs Section -->
+        {% if is_own_profile or access_level >= 3 %}
+            {% if active_jobs %}
+                <h3>Active Jobs for {{ member.user.first_name }}:</h3>
+                <ul class="list-group">
+                    {% for job in active_jobs %}
+                        <li class="list-group-item">
+                            <a href="{% url 'jobs:job_details' job.pk %}" class="h5">{{ job.customer }}</a>
+                            <br> <small>{{ job.job_description|truncatewords:10 }}</small>
+                            <br> <span class="badge badge-{{ job.job_status|lower }}">{{ job.get_job_status_display }}</span>
+                            <br> <small>{{ job.start_time|date:"F j, Y, g:i a" }}</small>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No active jobs assigned to {{ member.user.first_name }}.</p>
+            {% endif %}
+        {% else %}
+            <h3>You can't view these jobs</h3>
+        {% endif %}
+    </div>
+
+{% endblock %}

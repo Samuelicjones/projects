@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% block title %}Add Invoice{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">Add Invoice</h1>
+
+    <form method="post" id="invoiceForm">
+        {% csrf_token %}
+
+        <!-- Company Details -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="company_name" class="form-label"><strong>Company Name:</strong></label>
+                    <input type="text" id="company_name" name="company_name" value="{{ initial_data.company_name }}"
+                        class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="contact_name" class="form-label"><strong>Contact Name:</strong></label>
+                    <input type="text" id="contact_name" name="contact_name"
+                        value="{{ initial_data.contact_name|default:'' }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label"><strong>Address:</strong></label>
+                    <input type="text" id="address" name="address" value="{{ initial_data.address }}"
+                        class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="contact_phone" class="form-label"><strong>Contact Phone:</strong></label>
+                    <input type="text" id="contact_phone" name="contact_phone" value="{{ initial_data.contact_phone }}"
+                        class="form-control" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <h3>Invoice Items</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered" id="invoiceTable">
+                <thead>
+                    <tr>
+                        <th>Quantity</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="number" name="quantity[]" class="form-control quantity" min="1" value="1"
+                                required></td>
+                        <td><input type="text" name="description[]" class="form-control description" required></td>
+                        <td><input type="number" name="price[]" class="form-control price" min="0" step="0.01" required>
+                        </td>
+                        <td class="total_amount">$0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button type="button" class="btn btn-secondary mb-3" onclick="addItemRow()">Add Item</button>
+
+        <!-- Summary Section -->
+        <div class="card shadow-sm">
+            <div class="card-body text-end">
+                <p><strong>Subtotal:</strong> $<span id="subtotal">0.00</span></p>
+                <p><strong>Tax (8.25%):</strong> $<span id="tax">0.00</span></p>
+                <p><strong>Total:</strong> $<span id="total">0.00</span></p>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary w-100">Save Invoice</button>
+        </div>
+    </form>
+</div>
+
+<!-- JavaScript to Handle Dynamic Item Rows -->
+<script>
+    // Function to add a new row for an item
+    function addItemRow() {
+        const tableBody = document.querySelector("#invoiceTable tbody");
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td><input type="number" name="quantity[]" class="form-control quantity" min="1" value="1" required></td>
+        <td><input type="text" name="description[]" class="form-control description" required></td>
+        <td><input type="number" name="price[]" class="form-control price" min="0" step="0.01" required></td>
+        <td class="total_amount">$0.00</td>
+    `;
+        tableBody.appendChild(row);
+    }
+
+    // Update total amounts based on quantity and price
+    document.addEventListener("input", function (event) {
+        if (event.target.classList.contains("quantity") || event.target.classList.contains("price")) {
+            updateTotals();
+        }
+    });
+
+    function updateTotals() {
+        const rows = document.querySelectorAll("#invoiceTable tbody tr");
+        let subtotal = 0;
+
+        rows.forEach(row => {
+            const quantity = parseFloat(row.querySelector(".quantity").value) || 0;
+            const price = parseFloat(row.querySelector(".price").value) || 0;
+            const total = quantity * price;
+
+            row.querySelector(".total_amount").textContent = `$${total.toFixed(2)}`;
+            subtotal += total;
+        });
+
+        const taxRate = 0.0825; // Texas tax rate
+        const tax = subtotal * taxRate;
+        const total = subtotal + tax;
+
+        document.getElementById("subtotal").textContent = subtotal.toFixed(2);
+        document.getElementById("tax").textContent = tax.toFixed(2);
+        document.getElementById("total").textContent = total.toFixed(2);
+    }
+</script>
+{% endblock %}

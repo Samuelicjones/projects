@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+{% load custom_filters %}
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                Welcome 
+                {% if team_member.user.first_name %}
+                    {{ team_member.user.first_name }},
+                {% else %}
+                    {{ team_member.user.username }},
+                {% endif %}
+                to {{ team_name }}'s Dashboard!
+            </h1>
+        </div>
+
+        <div class="mb-4">
+            <h4>Your Team Members:</h4>
+            <ul class="list-group">
+                {% for member in user_team.members.all %}
+                    <li class="list-group-item">
+                        <a href="{% url 'team_member_profile' team_slug=user_team.slug member_id=member.id %}">
+                            {% if member.first_name or member.last_name %}
+                                {{ member.first_name }} {{ member.last_name }}
+                            {% else %}
+                                {{ member.username }}
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% if access_level >= 3 %}
+            <div class="mb-4">
+                <h4>Your Team ID:</h4>
+                <p><strong>{{ user_team.id }}</strong></p>
+
+                {% if recent_logs %}
+                    <h4>Recent Activities:</h4>
+                    <ul class="list-group">
+                        {% for log in recent_logs %}
+                            <li class="list-group-item">
+                                <strong>{{ log.team_member.user.username }}</strong> 
+                                {{ log.action }} 
+                                <strong>{{ log.affected_object }}</strong> 
+                                at {{ log.timestamp|date:"M d, Y, h:i A" }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{% url 'full_activity_log' %}" class="btn btn-link">View all activity logs</a>
+                {% else %}
+                    <p>No recent activities.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Calendar -->
+        <div class="mb-4">
+            <h4>Upcoming Jobs:</h4>
+            <div id="calendar" class="border rounded p-3"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var eventsData = JSON.parse('{{ jobs_events_json|escapejs }}');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: eventsData,  // Add events dynamically from Django context
+                eventDidMount: function(info) {
+                    // Change event color based on priority
+                    switch(info.event.extendedProps.priority) {
+                        case 'High':
+                            info.el.style.backgroundColor = 'red';
+                            break;
+                        case 'Medium':
+                            info.el.style.backgroundColor = 'orange';
+                            break;
+                        case 'Low':
+                            info.el.style.backgroundColor = 'green';
+                            break;
+                    }
+                }
+            });
+
+            calendar.render();
+        });
+    </script>
+{% endblock %}
