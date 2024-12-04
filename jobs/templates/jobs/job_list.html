@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Job List{% endblock %}
+{% block content %}
+{% load custom_filters %}
+<div class="container">
+    <h1 class="my-4 text-center">Jobs List</h1>
+
+    {% if access_level >= 3 %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="card-title text-center">Add a New Job</h2>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.customer.label_tag }}
+                        {{ form.customer|add_class:"form-control" }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.team_member.label_tag }}
+                        {{ form.team_member|add_class:"form-control" }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.start_time.label_tag }}
+                        {{ form.start_time|add_class:"form-control" }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.priority.label_tag }}
+                        {{ form.priority|add_class:"form-select" }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.job_status.label_tag }}
+                        {{ form.job_status|add_class:"form-select" }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.job_description.label_tag }}
+                        {{ form.job_description|add_class:"form-control" }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.additional_notes.label_tag }}
+                        {{ form.additional_notes|add_class:"form-control" }}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Job</button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center">
+            You do not have permission to add Jobs.
+        </div>
+    {% endif %}
+
+    <h2 class="my-4 text-center">
+        {% if access_level >= 3 %}
+            All Jobs
+        {% else %}
+            Your Jobs
+        {% endif %}
+    </h2>
+
+    <form method="GET" action="{% url 'jobs:job_list' %}" class="mb-4">
+        <div class="input-group">
+            <input 
+                type="text" 
+                name="q" 
+                class="form-control" 
+                placeholder="Search by Customer, Date, TeamMember, Priority, or Job Status" 
+                value="{{ query|default_if_none:'' }}"
+            >
+            <button type="submit" class="btn btn-outline-primary">Search</button>
+        </div>
+    </form>
+
+    <ul class="list-group">
+        {% for job in jobs %}
+            <li class="list-group-item">
+                <a href="{% url 'jobs:job_details' job.pk %}" class="fw-bold">{{ job.customer }}</a>
+                <p class="mb-1">
+                    {% if job.job_description|length > 50 %}
+                        {{ job.job_description|slice:"50" }}...
+                    {% else %}
+                        {{ job.job_description }}
+                    {% endif %}
+                </p>
+                <small class="text-muted">Start time: {{ job.start_time }}</small>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-center">No Jobs Available</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

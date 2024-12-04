@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ job.customer.name }}'s Job{% endblock %}
+{% block content %}
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>{{ job.customer.name }}'s Job</h1>
+            <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">Back</a>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="mb-4">
+            <p><strong>Customer:</strong> <a href="{% url 'customer_detail' job.customer.id %}">{{ job.customer.name }}</a></p>
+            <p><strong>Assigned Team Member:</strong> {{ job.team_member.user.username }}</p>
+            <p><strong>Start Time:</strong> {{ job.start_time|date:"F j, Y, g:i a" }}</p>
+            <p><strong>Priority:</strong> {{ job.priority }}</p>
+            <p><strong>Status:</strong> {{ job.job_status }}</p>
+        </div>
+
+        <!-- Job Status Actions -->
+        <div class="mb-4">
+            <h4>Change Job Status</h4>
+            <ul class="list-unstyled">
+                {% if job.job_status == 'Pending' %}
+                    <li><a href="{% url 'jobs:change_status' job.pk 'In Progress' %}" class="btn btn-warning">Mark as In Progress</a></li>
+                {% elif job.job_status == 'In Progress' %}
+                    <li><a href="{% url 'jobs:change_status' job.pk 'Completed' %}" class="btn btn-success">Mark as Completed</a></li>
+                {% endif %}
+                <br>
+                <li><a href="{% url 'jobs:change_status' job.pk 'Canceled' %}" class="btn btn-danger">Cancel Job</a></li>
+            </ul>
+        </div>
+
+        <!-- Job Description and Notes -->
+        <div class="mb-4">
+            <p><strong>Description:</strong> {{ job.job_description }}</p>
+            <p><strong>Notes:</strong> {{ job.additional_notes }}</p>
+        </div>
+
+        <!-- Edit/Delete Buttons -->
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'jobs:job_edit' job.pk %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'jobs:job_delete' job.pk %}" class="btn btn-danger">Delete</a>
+        </div>
+    </div>
+{% endblock %}

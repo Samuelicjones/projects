@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ customer.name }} - Customer{% endblock %}
+{% block content %}
+    <div class="container my-5">
+        <!-- Back button -->
+        <a href="{% url 'customer_list' %}" class="btn btn-secondary mb-4">Back</a>
+        
+        <!-- Customer Info -->
+        <div class="customer-info mb-4">
+            <h1>{{ customer.name }}'s Information</h1>
+            <table class="table table-bordered table-striped">
+                <tbody>
+                    <tr>
+                        <th>Name:</th>
+                        <td>{{ customer.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ customer.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Phone Number:</th>
+                        <td>{{ customer.phone_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Company:</th>
+                        <td>{{ customer.company }}</td>
+                    </tr>
+                    <tr>
+                        <th>Address:</th>
+                        <td>{{ customer.address }}</td>
+                    </tr>
+                    <tr>
+                        <th>Notes:</th>
+                        <td>{{ customer.notes }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Edit/Delete Options -->
+            <div class="d-flex justify-content-start">
+                {% if access_level >= 2 %}
+                    <a href="{% url 'edit_customer' customer.id %}" class="btn btn-warning me-3">Edit</a>
+                {% endif %}
+                {% if access_level >= 3 %}
+                    <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Jobs Section -->
+        <div class="jobs-section">
+            <h2>Jobs for {{ customer.name }}</h2>
+            <ul class="list-group">
+                {% for job in jobs %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if job.job_description|length > 50 %}
+                                <span>{{ job.job_description|slice:"50" }}... ({{ job.job_status }})</span>
+                            {% else %}
+                                <span>{{ job.job_description }} ({{ job.job_status }})</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'jobs:job_details' job.pk %}" class="btn btn-info btn-sm">View Details</a>
+                            <span class="text-muted ms-2">{{ job.start_time|date:"F j, Y, g:i a" }}</span>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No jobs available for this customer.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

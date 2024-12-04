@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Edit Job{% endblock %}
+{% block content %}
+{% load custom_filters %}
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Edit Job</h1>
+            <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">Back to Jobs</a>
+        </div>
+
+        <!-- Job Edit Form -->
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_customer" class="form-label">Customer</label>
+                <input type="text" class="form-control" id="id_customer" name="customer" value="{{ form.customer.value }}" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_team_member" class="form-label">Team Member</label>
+                <input type="text" class="form-control" id="id_team_member" name="team_member" value="{{ form.team_member.value }}" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_start_time" class="form-label">Start Time</label>
+                <input type="text" class="form-control" id="id_start_time" name="start_time" value="{{ form.start_time.value }}" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_priority" class="form-label">Priority</label>
+                <select class="form-select" id="id_priority" name="priority">
+                    <option value="High" {% if form.priority.value == 'High' %}selected{% endif %}>High</option>
+                    <option value="Medium" {% if form.priority.value == 'Medium' %}selected{% endif %}>Medium</option>
+                    <option value="Low" {% if form.priority.value == 'Low' %}selected{% endif %}>Low</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_job_status" class="form-label">Job Status</label>
+                <select class="form-select" id="id_job_status" name="job_status">
+                    <option value="Pending" {% if form.job_status.value == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="In Progress" {% if form.job_status.value == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Completed" {% if form.job_status.value == 'Completed' %}selected{% endif %}>Completed</option>
+                    <option value="Canceled" {% if form.job_status.value == 'Canceled' %}selected{% endif %}>Canceled</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_job_description" class="form-label">Job Description</label>
+                <textarea class="form-control" id="id_job_description" name="job_description">{{ form.job_description.value }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_additional_notes" class="form-label">Additional Notes</label>
+                <textarea class="form-control" id="id_additional_notes" name="additional_notes">{{ form.additional_notes.value }}</textarea>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

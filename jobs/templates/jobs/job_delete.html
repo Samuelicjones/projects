@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Delete {{ job.customer.name }}'s Job{% endblock %}
+{% block content %}
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Are you sure you want to delete {{ job.customer.name }}'s Job?</h1>
+            <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">Back to Jobs</a>
+        </div>
+
+        <!-- Job Details -->
+        <div class="mb-4">
+            <p><strong>Customer:</strong> <a href="{% url 'customer_detail' job.customer.id %}">{{ job.customer.name }}</a></p>
+            <p><strong>Assigned Team Member:</strong> {{ job.team_member.user.username }}</p>
+            <p><strong>Start Time:</strong> {{ job.start_time|date:"F j, Y, g:i a" }}</p>
+            <p><strong>Priority:</strong> {{ job.priority }}</p>
+            <p><strong>Status:</strong> {{ job.job_status }}</p>
+        </div>
+
+        <!-- Job Description -->
+        <div class="mb-4">
+            <p><strong>Description:</strong> {{ job.job_description }}</p>
+            <p><strong>Notes:</strong> {{ job.additional_notes }}</p>
+        </div>
+
+        <!-- Confirm Delete Form -->
+        <form method="POST">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-danger">Yes, delete this job</button>
+                <a href="{% url 'jobs:job_details' job.pk %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Delete {{ customer.name }}{% endblock %}
+{% block content %}
+    <div class="container my-5">
+        <div class="text-center">
+            <h1>Are you sure you want to delete <strong>{{ customer.name }}</strong>?</h1>
+            <p class="lead text-danger">This action cannot be undone!</p>
+
+            <!-- Delete Confirmation Form -->
+            <form method="POST" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-lg">Yes, delete</button>
+            </form>
+
+            <!-- Cancel Button -->
+            <a href="{% url 'customer_detail' customer.id %}" class="btn btn-secondary btn-lg ms-3">Cancel</a>
+        </div>
+    </div>
+{% endblock %}
